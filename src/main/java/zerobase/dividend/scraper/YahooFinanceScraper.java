@@ -5,7 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import zerobase.dividend.exception.impl.NoDividendInfo;
 import zerobase.dividend.model.Company;
 import zerobase.dividend.model.Dividend;
 import zerobase.dividend.model.ScrapedResult;
@@ -29,6 +32,7 @@ public class YahooFinanceScraper implements Scraper {
 
     private static final String URL = "https://query1.finance.yahoo.com/v8/finance/chart/%s?interval=1mo&period1=%d&period2=%d&events=div";
     private static final String SUMMARY_URL = "https://finance.yahoo.com/quote/%s/";
+    private static final Logger log = LoggerFactory.getLogger(YahooFinanceScraper.class);
 
     @Override
     public ScrapedResult scrap(Company company) {
@@ -56,12 +60,14 @@ public class YahooFinanceScraper implements Scraper {
                     dividends.add(new Dividend(date, dividend));
                 });
 
+                log.info("Found {} dividends", dividends.size());
+
                 scrapedResult.setDividendEntities(dividends);
             } else {
-                System.out.println("배당금 정보가 없습니다.");
+                throw new NoDividendInfo();
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            log.error("failed to scrap: {}", e.getMessage());
         }
 
         return scrapedResult;
@@ -77,7 +83,7 @@ public class YahooFinanceScraper implements Scraper {
             String title = h1Title.text().split("\\(")[0].trim();
             return new Company(ticker, title);
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            log.error("failed to scrapCompanyByTicker: {}", e.getMessage());
         }
         return null;
     }
@@ -92,7 +98,7 @@ public class YahooFinanceScraper implements Scraper {
         if (responseCode == HttpURLConnection.HTTP_OK) {
             return new String(url.openStream().readAllBytes());
         } else {
-            throw new IOException("HTTP request failed with code " + responseCode);
+            throw new IOException("failed to fetchJsonData" + responseCode);
         }
     }
 }
