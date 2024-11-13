@@ -15,6 +15,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ErrorResponse handleGeneralException(Exception e) {
         log.error("Global Exception 예외 발생: {}", e.getMessage());
+
         return new ErrorResponse(INTERNAL_SERVER_ERROR.value(), e.getMessage());
     }
 }

@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import org.apache.commons.collections4.Trie;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -65,26 +64,16 @@ public class CompanyService {
         return company;
     }
 
-    public List<String> getCompanyNamesByKeyword(String keyword) {
-        PageRequest limit = PageRequest.of(0, 10);
-        Page<CompanyEntity> companyEntities =
-                companyRepository.findByNameStartingWithIgnoreCase(keyword, limit);
-        return companyEntities.stream()
-                .map(CompanyEntity::getName)
-                .toList();
-    }
-
     public void addAutoCompleteKeyWord(String keyword) {
         trie.put(keyword, null);
     }
 
-    /**
-    *  데이터의 규모가 커질 경우 사용
-        public List<String> autoComplete(String keyword) {
-          return trie.prefixMap(keyword).keySet().stream()
-                 .limit(10).toList();
-        }
-    */
+
+    public List<String> autoComplete(String keyword) {
+        return trie.prefixMap(keyword).keySet().stream()
+                .limit(10).toList();
+    }
+
 
     public void deleteAutoCompleteKeyWord(String keyword) {
         trie.remove(keyword);

@@ -22,6 +22,7 @@ public class CustomExceptionHandler {
                 .build();
 
         log.error("커스텀 오류 발생: {}", e.getMessage());
+
         return new ResponseEntity<>(errorResponse,
                 Objects.requireNonNull(HttpStatus.resolve(e.getStatusCode()))
         );

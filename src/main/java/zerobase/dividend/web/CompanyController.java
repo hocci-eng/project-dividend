@@ -28,7 +28,7 @@ public class CompanyController {
 
     @GetMapping("autocomplete")
     public ResponseEntity<?> autoComplete(@RequestParam String keyword) {
-        List<String> result = companyService.getCompanyNamesByKeyword(keyword);
+        List<String> result = companyService.autoComplete(keyword);
         return ResponseEntity.ok(result);
     }
 
