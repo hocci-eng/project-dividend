@@ -1,0 +1,41 @@
+<configuration>
+    <property name="LOG_DIR" value="./"/>
+    <property name="LOG_FILE_NAME" value="mylog"/>
+    <!-- 스프링 프로파일에 따른 로깅 설정을 위한 스프링 프로파일 지원 -->
+    <springProfile name="dev">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %magenta(%-4relative) --- [ %thread{10} ]
+                    %cyan(%logger{20}) : %msg%n</pattern>
+            </encoder>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+        </root>
+    </springProfile>
+
+    <springProfile name="prod">
+        <!-- 로그 파일에 출력하는 RollingFileAppender -->
+        <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>logs/app.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <!-- 파일 이름 패턴 및 보관 기간 설정 -->
+                <fileNamePattern>${LOG_DIR}/${LOG_FILE_NAME}-%d{yyyy-MM-dd}-%i.log.gz</fileNamePattern>
+                <maxFileSize>10MB</maxFileSize>
+                <maxHistory>30</maxHistory> <!-- 로그 보관 기간 (30일) -->
+            </rollingPolicy>
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            </encoder>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="FILE" />
+        </root>
+    </springProfile>
+
+    <!-- 특정 패키지에 대한 로그 레벨 설정 -->
+    <logger name="org.springframework" level="info"/>
+    <logger name="org.hibernate" level="info"/>
+</configuration>
